@@ -9,6 +9,7 @@ type Deployment struct {
 	IsComplete bool
 	Message    string
 	CreateTime string
+	Lables     map[string]string
 	Pods       []*Pod
 	Age        string
 }

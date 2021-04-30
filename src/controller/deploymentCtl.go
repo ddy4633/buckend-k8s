@@ -27,7 +27,7 @@ func (this *DeploymentCtl) Getlist(c *gin.Context) goft.Json {
 }
 
 func (this *DeploymentCtl) Build(goft *goft.Goft) {
-	goft.Handle("GET", "/deployment", this.Getlist)
+	goft.Handle("GET", "/deployments", this.Getlist)
 }
 
 func (this *DeploymentCtl) Name() string {

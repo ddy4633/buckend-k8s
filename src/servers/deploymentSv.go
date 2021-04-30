@@ -32,6 +32,7 @@ func (this *DeploymentService) ListAll(ns string) (res []*models.Deployment) {
 			CreateTime: item.CreationTimestamp.Format("2006-01-02 15:04:05"),
 			Images:     this.Conmmon.GetDeployMentImage(item),
 			Age:        this.Conmmon.GetAge(item.CreationTimestamp.Time),
+			Lables: 	item.Labels,
 		}
 		// 加入到副本集中
 		res = append(res, rep)
