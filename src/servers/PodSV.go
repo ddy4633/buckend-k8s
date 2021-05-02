@@ -5,7 +5,6 @@ import (
 	"k8s-web/src/models"
 	coreV1 "k8s.io/api/core/v1"
 	"log"
-	"strings"
 )
 
 type PodService struct {
@@ -26,17 +25,14 @@ func (p *PodService) ListPod(ns string) (res []*models.Pod) {
 		return make([]*models.Pod, 0)
 	}
 	for _, item := range pods {
-		if strings.Contains(item.Name, "deploy") {
-			fmt.Println(item.Name, len(item.Status.ContainerStatuses))
-		}
 		pod := &models.Pod{
 			Name:       item.Name,
 			NameSpace:  item.Namespace,
 			Images:     p.Conmmon.GetContainerImages(item.Spec.Containers),
 			NodeName:   item.Spec.NodeName,
-			IP:         []string{p.Conmmon.TransfromPodTOString(item.Status.PodIP), item.Status.HostIP},
+			IP:         []string{p.Conmmon.TransfromPodTOString(item.Status.PodIP)},
 			Phase:      fmt.Sprintf("%s", item.Status.Phase),
-			IsRead:     p.Conmmon.PodIsReady(item),
+			IsRead:     p.getPodComplete(item),
 			Message:    p.Events.GetMessages(item.Namespace, "Pod", item.Name),
 			CreateTime: item.CreationTimestamp.String(),
 			// 当第一次创建的时候返回的对象的len为零？
@@ -51,14 +47,23 @@ func (p *PodService) ListPod(ns string) (res []*models.Pod) {
 
 // 判断pod是否完成
 func (*PodService) getPodComplete(pod *coreV1.Pod) bool {
-	return pod.Status.Phase == "Running"
+	for i, ava := range pod.Status.Conditions {
+		//fmt.Println(pod.Name, i, ava)
+		if string(ava.Status) != "True" {
+			break
+		} else if i == 3 && string(ava.Status) == "True" {
+			return true
+		}
+	}
+	return false
 }
 
 // 判断pod的可用状态
 func (*PodService) getPodCondition(pod *coreV1.Pod) string {
+	fmt.Println(pod.Status.Conditions, pod.Name)
 	for _, ava := range pod.Status.Conditions {
-		if string(ava.Type) == "Available" && string(ava.Status) != "True" {
-			return ava.Message
+		if string(ava.Status) != "True" {
+			break
 		}
 	}
 	return "not Available"
@@ -66,7 +71,7 @@ func (*PodService) getPodCondition(pod *coreV1.Pod) string {
 
 // 获取对象的重启次数
 func (*PodService) getRestartCount(pod *coreV1.Pod) int32 {
-	if len(pod.Status.ContainerStatuses) == 0{
+	if len(pod.Status.ContainerStatuses) == 0 {
 		return 0
 	}
 	return pod.Status.ContainerStatuses[0].RestartCount

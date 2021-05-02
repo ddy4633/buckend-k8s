@@ -25,6 +25,7 @@ func (this *DeployHandler) OnAdd(obj interface{}) {
 }
 
 func (this *DeployHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
+
 	if err := this.DepMap.Update(newObj.(*v1.Deployment)); err != nil {
 		log.Println(err)
 	} else {

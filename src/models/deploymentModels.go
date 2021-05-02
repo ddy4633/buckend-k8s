@@ -9,9 +9,9 @@ type Deployment struct {
 	IsComplete bool
 	Message    string
 	CreateTime string
-	Lables     map[string]string
 	Pods       []*Pod
 	Age        string
+	Lables 	map[string]string
 }
 
 // namespace模板
@@ -27,7 +27,8 @@ type Pod struct {
 	NodeName     string   // 所在机器
 	IP           []string // 当前POD IP
 	Phase        string   // Pod当前所处阶段
-	IsRead       bool     // 是否是就绪状态
+	Available    string
+	IsRead       bool // 是否是就绪状态
 	Message      string
 	CreateTime   string
 	RestartCount int32  // 重启次数
