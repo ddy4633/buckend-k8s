@@ -163,6 +163,24 @@ func (s *ServiceMap) List(ns string) ([]*corev1.Service, error) {
 	return list, fmt.Errorf("record not foound Services Object")
 }
 
+// 对Pod进行排序
+type CorePods []*corev1.Pod
+
+// 求本身的长度
+func (c CorePods) Len() int{
+	return len(c)
+}
+
+// 利用时间来做(正排序)
+func (c CorePods) Less(i,j int) bool {
+	return c[i].CreationTimestamp.Time.Before(c[j].CreationTimestamp.Time)
+}
+
+// 数据交换实现
+func (c CorePods) Swap(i,j int){
+	c[i],c[j]=c[j],c[i]
+}
+
 // 对Pod的集合进行定义
 type PodMap struct {
 	data sync.Map
@@ -246,16 +264,15 @@ func (p *PodMap) LabelsList(ns string, labels []map[string]string) ([]*corev1.Po
 	return nil, fmt.Errorf("pods not found ")
 }
 
-// debug Get pod
-func (p *PodMap) DEBUG_ListByNS(ns string) []*corev1.Pod {
-	ret := make([]*corev1.Pod, 0)
-	if list, ok := p.data.Load(ns); ok {
-		for _, pod := range list.([]*corev1.Pod) {
-			ret = append(ret, pod)
-		}
-
+// 返回排序后的pod列表
+func (p *PodMap) ListByNS(ns string) []*corev1.Pod {
+	if list,ok := p.data.Load(ns);ok{
+		ret := list.([]*corev1.Pod)
+		// 进行排序
+		sort.Sort(CorePods(ret))
+		return ret
 	}
-	return ret
+	return nil
 }
 
 // 对Namespace集合进行定义

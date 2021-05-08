@@ -28,3 +28,7 @@ func (*ServiceConfig) NsService() *servers.NamespaceService {
 func (*ServiceConfig) SvService() *servers.SVservice {
 	return servers.NewSVserver()
 }
+
+func (*ServiceConfig) Helper() *servers.Helper {
+	return servers.NewHelper()
+}
