@@ -35,7 +35,7 @@ func (p *PodCtl) GetALL(c *gin.Context) goft.Json {
 		"data": p.Helper.PageResource(
 			p.Helper.StrTOint(page,1),
 			p.Helper.StrTOint(size,8),
-			len(pods),ipod).SetEXT(gin.H{"ReadNum":readycount,"Totle":totlecount}),
+			ipod).SetEXT(gin.H{"ReadNum":readycount,"Totle":totlecount}),
 	}
 }
 

@@ -2,6 +2,7 @@ package servers
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"k8s-web/src/models"
 	coreV1 "k8s.io/api/core/v1"
 	"log"
@@ -11,11 +12,18 @@ type PodService struct {
 	PodMap  *PodMap        `inject:"-"`
 	Conmmon *CommonService `inject:"-"`
 	Events  *EventMap      `inject:"-"`
-	Helper  *Helper		   `inject:"-"`
+	Helper  *Helper        `inject:"-"`
 }
 
 func NewPodService() *PodService {
 	return &PodService{}
+}
+
+func(p *PodService) PagePods(ns string,page,size int) *Paging {
+	pods := p.ListPod(ns)
+	readycount,allcount,ipods := p.GetPodtotle(pods)
+	return p.Helper.PageResource(page,size,ipods).
+		SetEXT(gin.H{"ReadyNum":readycount,"AllNum":allcount})
 }
 
 func (p *PodService) ListPod(ns string) (res []*models.Pod) {
@@ -47,16 +55,15 @@ func (p *PodService) ListPod(ns string) (res []*models.Pod) {
 }
 
 // 获取pod的就绪总数和总数量
-func (p *PodService) GetPodtotle(res []*models.Pod) (readyCount,allCount int,iPods []interface{}) {
-	iPods = make([]interface{},len(res))
-	for i,pod := range res {
-		allCount ++
-		iPods[i]=pod
+func (p *PodService) GetPodtotle(res []*models.Pod) (readyCount, allCount int, iPods []interface{}) {
+	iPods = make([]interface{}, len(res))
+	for i, pod := range res {
+		allCount++
+		iPods[i] = pod
 		if pod.IsRead {
-			readyCount ++
+			readyCount++
 		}
 	}
-	p.Helper.PageResource(p.Helper.StrTOint())
 	return
 }
 
@@ -77,7 +84,7 @@ func (*PodService) getPodCondition(pod *coreV1.Pod) string {
 
 // 获取对象的重启次数
 func (*PodService) getRestartCount(pod *coreV1.Pod) int32 {
-	if len(pod.Status.ContainerStatuses) == 0{
+	if len(pod.Status.ContainerStatuses) == 0 {
 		return 0
 	}
 	return pod.Status.ContainerStatuses[0].RestartCount

@@ -34,7 +34,8 @@ func (*Helper) StrTOint(str string, def int) int {
 }
 
 // 分页实现
-func (*Helper) PageResource(cu, size,tot int,list []interface{}) *Paging {
+func (*Helper) PageResource(cu, size int,list []interface{}) *Paging {
+	tot := len(list)
 	// 设置默认的分页为8个
 	if size == 0 || size > tot{
 		size = 8

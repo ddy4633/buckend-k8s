@@ -53,10 +53,10 @@ type PodHandler struct {
 
 func (p *PodHandler) OnAdd(obj interface{}) {
 	p.PodMaps.Add(obj.(*corev1.Pod))
-	readyCount,allCount,ipod := p.PodServices.GetPodtotle(obj.([]*models.Pod))
+	// 多层的封装
 	msg := returnMsg("pod",
 		obj.(*corev1.Pod).Namespace,
-		p.PodServices.ListPod(obj.(*corev1.Pod).Namespace))
+		p.PodServices.PagePods(obj.(*corev1.Pod).Namespace,1,8))
 	wscore.ClientMap.Sendall(msg)
 }
 
@@ -66,7 +66,7 @@ func (p *PodHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
 	} else {
 		msg := returnMsg("pod",
 			newObj.(*corev1.Pod).Namespace,
-			p.PodServices.ListPod(newObj.(*corev1.Pod).Namespace))
+			p.PodServices.PagePods(newObj.(*corev1.Pod).Namespace,1,8))
 		wscore.ClientMap.Sendall(msg)
 	}
 }
@@ -76,7 +76,7 @@ func (p *PodHandler) OnDelete(obj interface{}) {
 		p.PodMaps.Delete(objs)
 		msg := returnMsg("pod",
 			obj.(*corev1.Pod).Namespace,
-			p.PodServices.ListPod(obj.(*corev1.Pod).Namespace))
+			p.PodServices.PagePods(obj.(*corev1.Pod).Namespace,1,8))
 		wscore.ClientMap.Sendall(msg)
 	}
 }
