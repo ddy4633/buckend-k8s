@@ -53,6 +53,7 @@ type PodHandler struct {
 
 func (p *PodHandler) OnAdd(obj interface{}) {
 	p.PodMaps.Add(obj.(*corev1.Pod))
+	readyCount,allCount,ipod := p.PodServices.GetPodtotle(obj.([]*models.Pod))
 	msg := returnMsg("pod",
 		obj.(*corev1.Pod).Namespace,
 		p.PodServices.ListPod(obj.(*corev1.Pod).Namespace))

@@ -18,7 +18,6 @@ func (pa *Paging) SetEXT(ext interface{}) *Paging {
 	return pa
 }
 
-
 type Helper struct{}
 
 func NewHelper() *Helper {

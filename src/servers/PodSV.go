@@ -11,6 +11,7 @@ type PodService struct {
 	PodMap  *PodMap        `inject:"-"`
 	Conmmon *CommonService `inject:"-"`
 	Events  *EventMap      `inject:"-"`
+	Helper  *Helper		   `inject:"-"`
 }
 
 func NewPodService() *PodService {
@@ -55,6 +56,7 @@ func (p *PodService) GetPodtotle(res []*models.Pod) (readyCount,allCount int,iPo
 			readyCount ++
 		}
 	}
+	p.Helper.PageResource(p.Helper.StrTOint())
 	return
 }
 
