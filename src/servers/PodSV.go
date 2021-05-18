@@ -19,6 +19,7 @@ func NewPodService() *PodService {
 	return &PodService{}
 }
 
+// 分页输出POD列表
 func(p *PodService) PagePods(ns string,page,size int) *Paging {
 	pods := p.ListPod(ns)
 	readycount,allcount,ipods := p.GetPodtotle(pods)
@@ -26,6 +27,7 @@ func(p *PodService) PagePods(ns string,page,size int) *Paging {
 		SetEXT(gin.H{"ReadyNum":readycount,"AllNum":allcount})
 }
 
+// 获取所有的Pod信息
 func (p *PodService) ListPod(ns string) (res []*models.Pod) {
 	pods, err := p.PodMap.List(ns)
 	if err != nil {
@@ -47,6 +49,7 @@ func (p *PodService) ListPod(ns string) (res []*models.Pod) {
 			// 当第一次创建的时候返回的对象的len为零？
 			RestartCount: p.getRestartCount(item),
 			Age:          p.Conmmon.GetAge(item.CreationTimestamp.Time),
+			ContainersName: p.GetContainers(item.Namespace,item.Name),
 		}
 		//fmt.Println(pod.Name, pod.IsRead)
 		res = append(res, pod)
@@ -66,6 +69,21 @@ func (p *PodService) GetPodtotle(res []*models.Pod) (readyCount, allCount int, i
 	}
 	return
 }
+
+// 获取Container容器的列表
+func (p * PodService) GetContainers(ns,podname string) []*models.Containers {
+	result := make([]*models.Containers,0)
+	pods,err := p.PodMap.GetPod(ns,podname)
+	if err == nil{
+		for _,c := range pods.Spec.Containers{
+			result = append(result,&models.Containers{
+				Name: c.Name,
+			})
+		}
+	}
+	return result
+}
+
 
 // 判断pod是否完成
 func (*PodService) getPodComplete(pod *coreV1.Pod) bool {

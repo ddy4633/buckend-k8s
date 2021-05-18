@@ -24,6 +24,7 @@ func main() {
 			controller.NewWsCli(),
 			controller.NewNsCtl(),
 			controller.NewServiceCtl(),
+			controller.NewPodLogCtl(),
 		).Attach(
 	//middleware.NewCrosMiddleware()
 	)

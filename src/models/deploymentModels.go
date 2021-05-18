@@ -32,6 +32,7 @@ type Pod struct {
 	CreateTime   string
 	RestartCount int32  // 重启次数
 	Age          string // 创建时间
+	ContainersName []*Containers
 }
 
 // Service模板
@@ -45,4 +46,10 @@ type Services struct {
 	Protocol      interface{} //通讯的方式
 	Age           string
 	CreateTime    string
+}
+
+// Containers模板
+
+type Containers struct {
+	Name string
 }

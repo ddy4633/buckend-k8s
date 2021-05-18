@@ -39,6 +39,17 @@ func (p *PodCtl) GetALL(c *gin.Context) goft.Json {
 	}
 }
 
+// 获取容器组
+func (p *PodCtl) Containers(c *gin.Context) goft.Json {
+	ns := c.DefaultQuery("ns","default")
+	podname := c.DefaultQuery("name","")
+	return gin.H{
+		"code": 20000,
+		"data": p.PodServices.GetContainers(ns,podname),
+	}
+}
+
 func (p *PodCtl) Build(goft *goft.Goft) {
 	goft.Handle("GET", "/pods", p.GetALL)
+	goft.Handle("GET", "/pods/containers", p.Containers)
 }
