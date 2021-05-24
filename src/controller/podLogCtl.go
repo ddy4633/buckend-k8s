@@ -37,7 +37,7 @@ func (plog *PodLogCtl) GetLogs(c *gin.Context) (v goft.Void){
 	// 流式读取日志信息
 	ioreader,err := reqpodlogs.Stream(cc)
 	defer ioreader.Close()
-	goft.Error(err)
+	fmt.Println(err)
 	for {
 		buf := make([]byte,1024)
 		n,err := ioreader.Read(buf)
@@ -45,7 +45,7 @@ func (plog *PodLogCtl) GetLogs(c *gin.Context) (v goft.Void){
 			break
 		}
 		if n>0 {
-			fmt.Println(string(buf[0:n]))
+			//fmt.Println(string(buf[0:n]))
 			c.Writer.Write([]byte(string(buf[0:n])))
 			c.Writer.(http.Flusher).Flush()
 		}
