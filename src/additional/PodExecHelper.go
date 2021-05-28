@@ -25,7 +25,7 @@ func HandlePodCommand(ns,pod,container string,client *kubernetes.Clientset,confi
 		SubResource("exec").VersionedParams(
 		options,
 		scheme.ParameterCodec)
-	fmt.Println(req.URL())
+	fmt.Println(req.URL(),ns,pod,container,command)
 	exec,err := remotecommand.NewSPDYExecutor(config,"POST",req.URL())
 	fmt.Println(exec)
 	if err != nil {

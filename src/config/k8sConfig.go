@@ -1,6 +1,7 @@
 package config
 
 import (
+	"k8s.io/client-go/rest"
 	"log"
 	"time"
 
@@ -25,13 +26,19 @@ func NewK8sConfig() *K8sConfig {
 	return &K8sConfig{}
 }
 
-// 初始化客户端
-func (*K8sConfig) InitClient() *kubernetes.Clientset {
-	rest, err := clientcmd.BuildConfigFromFlags("", "/root/.kube/config")
-	if err != nil {
-		log.Println(err)
+// 初始化给webshell使用的restconfig原生
+func (*K8sConfig) K8sRestConfig() *rest.Config{
+	config, err := clientcmd.BuildConfigFromFlags("","/root/.kube/config" )
+	//config.Insecure=true
+	if err!=nil{
+		log.Fatal(err)
 	}
-	client, err := kubernetes.NewForConfig(rest)
+	return config
+}
+
+// 初始化客户端
+func (k8s *K8sConfig) InitClient() *kubernetes.Clientset {
+	client, err := kubernetes.NewForConfig(k8s.K8sRestConfig())
 	if err != nil {
 		log.Println(err)
 	}

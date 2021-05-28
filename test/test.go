@@ -40,16 +40,16 @@ func main() {
 
 func HandleCommand(client *kubernetes.Clientset,config *rest.Config,command []string) remotecommand.Executor{
 	option := &v1.PodExecOptions{
-		Container:"nginx",
-		Command: command,
-		Stdin:   false,
+		Container:"centos-tools",
+		Command: []string{"sh"},
+		Stdin:   true,
 		Stdout:  true,
 		Stderr:  true,
 		TTY:true,
 	}
 	req:=client.CoreV1().RESTClient().Post().Resource("pods").
 		Namespace("default").
-		Name("nginx-7875f55f56-5qqbr").
+		Name("centos-tools").
 		SubResource("exec").
 		Param("color","false").
 		VersionedParams(

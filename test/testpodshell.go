@@ -24,7 +24,7 @@ func main() {
 		Stderr:    true,
 		TTY:       true,
 		Container: "centos-tools",
-		Command:   []string{"sh","-c","pwd"},
+		Command:   []string{"sh"},
 	}
 	req := resrclient.CoreV1().RESTClient().Post().Resource("pods").
 		Namespace("default").Name("centos-tools").
