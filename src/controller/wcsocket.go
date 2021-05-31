@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"k8s-web/src/additional"
 	"k8s-web/src/wscore"
 	"k8s.io/client-go/kubernetes"
@@ -40,13 +41,15 @@ func (ws *WsCli) PodexecConnect(c *gin.Context) (v goft.Void) {
 	ns := c.Query("ns")
 	pod := c.Query("pod")
 	container := c.Query("cname")
+	terms := c.Query("terms")
+	fmt.Println(terms)
 	wsclient,err := wscore.Upgrader.Upgrade(c.Writer,c.Request,nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	shellClient := wscore.NewWebShellClient(wsclient)
-	additional.HandlePodCommand(ns,pod,container,ws.Client,ws.Config,[]string{"sh"}).
+	additional.HandlePodCommand(ns,pod,container,ws.Client,ws.Config,[]string{terms}).
 		Stream(remotecommand.StreamOptions{
 			Stdin:             shellClient,
 			Stdout:            shellClient,

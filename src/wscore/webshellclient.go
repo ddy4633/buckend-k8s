@@ -30,5 +30,5 @@ func (wc *WebShellClient) Read(data []byte) (n int,err error)  {
 	if err !=nil {
 		return 0, err
 	}
-	return copy(data,string(re)+"\n"),nil
+	return copy(data,string(re)),nil
 }
