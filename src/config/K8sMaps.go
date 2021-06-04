@@ -38,3 +38,8 @@ func (this *Maps) InitEventsMap() *servers.EventMap {
 func (this *Maps) InitServiceMap() *servers.ServiceMap {
 	return &servers.ServiceMap{}
 }
+
+// 初始化Ingress
+func (this *Maps) InitIngressMap() *servers.IngressMap {
+	return &servers.IngressMap{}
+}

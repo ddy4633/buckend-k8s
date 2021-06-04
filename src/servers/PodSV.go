@@ -84,7 +84,6 @@ func (p * PodService) GetContainers(ns,podname string) []*models.Containers {
 	return result
 }
 
-
 // 判断pod是否完成
 func (*PodService) getPodComplete(pod *coreV1.Pod) bool {
 	return pod.Status.Phase == "Running"

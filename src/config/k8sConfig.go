@@ -20,6 +20,7 @@ type K8sConfig struct {
 	NamespaceHandles  *servers.NameSpaceHandler `inject:"-"`
 	EventHandlers     *servers.EventHandler     `inject:"-"`
 	ServiceHandlers   *servers.ServiceHandler   `inject:"-"`
+	IngressHandle     *servers.IngressHandle    `inject:"-"`
 }
 
 func NewK8sConfig() *K8sConfig {
@@ -68,6 +69,10 @@ func (this *K8sConfig) InitInformer() informers.SharedInformerFactory {
 	// 初始化事件的信息
 	EventInformer := fact.Core().V1().Events()
 	EventInformer.Informer().AddEventHandler(this.EventHandlers)
+
+	// 初始化Igress信息
+	IngressInformer := fact.Networking().V1beta1().Ingresses()
+	IngressInformer.Informer().AddEventHandler(this.IngressHandle)
 
 	fact.Start(wait.NeverStop)
 	return fact

@@ -3,6 +3,7 @@ package servers
 import (
 	"fmt"
 	"k8s-web/src/models"
+	"k8s.io/api/networking/v1beta1"
 	"reflect"
 	"sort"
 	"sync"
@@ -334,4 +335,74 @@ func (e *EventMap) GetMessages(ns, kind, name string) string {
 		return v.(*corev1.Event).Message
 	}
 	return ""
+}
+
+// 对ingress资源对象进行存储
+type IngressMap struct {
+	data sync.Map
+}
+
+// 存储数据
+func (ing *IngressMap) Add(ingress *v1beta1.Ingress) {
+	if va,ok := ing.data.Load(ingress.Namespace);ok {
+		list := append(va.([]*v1beta1.Ingress),ingress)
+		ing.data.Store(ingress.Namespace,list)
+	}else {
+		ing.data.Store(ingress.Namespace,[]*v1beta1.Ingress{ingress})
+	}
+}
+
+// 数据更新
+func (ing *IngressMap) Update(ingress *v1beta1.Ingress) error {
+	if va,ok := ing.data.Load(ingress.Namespace);ok {
+		for i,ingress_obj := range va.([]*v1beta1.Ingress) {
+			if ingress_obj.Name == ingress.Name {
+				va.([]*v1beta1.Ingress)[i] = ingress
+			}
+		}
+		return nil
+	}
+	return fmt.Errorf("%s - ingress-%s is not found",ingress.Namespace,ingress.Name)
+}
+
+// 删除数据
+func (ing *IngressMap) Delete(ingress *v1beta1.Ingress){
+	if va,ok := ing.data.Load(ingress.Namespace);ok {
+		for i,ingress_obj := range va.([]*v1beta1.Ingress) {
+			if ingress_obj.Name == ingress.Name {
+				list := append(va.([]*v1beta1.Ingress)[:i],va.([]*v1beta1.Ingress)[i+1:]...)
+				ing.data.Store(ingress_obj.Namespace,list)
+				break
+			}
+		}
+	}
+}
+
+// 获取单个ingress信息
+func (ing *IngressMap) GetIngress(ns,name string) *v1beta1.Ingress {
+	if va,ok := ing.data.Load(ns);ok {
+		for _,ingress := range va.([]*v1beta1.Ingress) {
+			if ingress.Name == name {
+				return ingress
+			}
+		}
+	}
+	return nil
+}
+
+
+// ingress对象排序的实现
+type v1beta1Ingress []*v1beta1.Ingress
+
+func (ing v1beta1Ingress) Len() int {
+	return len(ing)
+}
+
+func (ing v1beta1Ingress) Less(i,j int) bool {
+	// 根据时间间隔（倒排序）
+	return ing[i].CreationTimestamp.Time.After(ing[j].CreationTimestamp.Time)
+}
+
+func (ing v1beta1Ingress) Swap(i,j int) {
+	ing[i],ing[j] = ing[j],ing[i]
 }
