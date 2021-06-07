@@ -25,6 +25,7 @@ func main() {
 			controller.NewNsCtl(),
 			controller.NewServiceCtl(),
 			controller.NewPodLogCtl(),
+			controller.NewIngressCtl(),
 		).Attach(
 	//middleware.NewCrosMiddleware()
 	)

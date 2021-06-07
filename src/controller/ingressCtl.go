@@ -7,7 +7,8 @@ import (
 )
 
 type IngressCtl struct {
-	IngressService servers.IngressService `inject:"-"`
+	IngressService *servers.IngressService `inject:"-"`
+	IngressMap servers.IngressMap `inject:"-"`
 }
 
 func NewIngressCtl() *IngressCtl {
@@ -19,12 +20,13 @@ func (*IngressCtl) Name() string {
 }
 
 func (ing *IngressCtl) ListAll(c *gin.Context) goft.Json {
+	ns := c.DefaultQuery("ns","default")
 	return gin.H{
 		"code": 20000,
-		"data": ing.IngressService.GetALLIngress(c.DefaultQuery("ns","default")),
+		"data": ing.IngressMap.ListTest(ns),
 	}
 }
 
-func (ing *IngressCtl) Build(goft goft.Goft) {
-	goft.Handle("GET","/v1/ingress",ing.ListAll)
+func (ing *IngressCtl) Build(goft *goft.Goft) {
+	goft.Handle("GET","/ingress",ing.ListAll)
 }

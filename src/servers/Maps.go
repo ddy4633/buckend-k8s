@@ -346,8 +346,10 @@ type IngressMap struct {
 func (ing *IngressMap) Add(ingress *v1beta1.Ingress) {
 	if va,ok := ing.data.Load(ingress.Namespace);ok {
 		list := append(va.([]*v1beta1.Ingress),ingress)
+		fmt.Println("存储了",list)
 		ing.data.Store(ingress.Namespace,list)
 	}else {
+		fmt.Println("存储了",ingress)
 		ing.data.Store(ingress.Namespace,[]*v1beta1.Ingress{ingress})
 	}
 }
@@ -388,6 +390,38 @@ func (ing *IngressMap) GetIngress(ns,name string) *v1beta1.Ingress {
 		}
 	}
 	return nil
+}
+
+//　测试方法
+func (ing *IngressMap) ListTest(ns string) ([]*models.Ingresses) {
+	fmt.Println(ns)
+	if va,ok := ing.data.Load(ns);ok {
+		obj := va.([]*v1beta1.Ingress)
+		sort.Sort(v1beta1Ingress(obj))
+		result := make([]*models.Ingresses,len(obj))
+		for i,item := range obj {
+			result[i] = &models.Ingresses{
+				Name:       item.Name,
+				NameSpace:  item.Namespace,
+				CreateTime: item.CreationTimestamp.String(),
+				Labels:     item.Labels,
+				Status:     item.Status.String(),
+			}
+		}
+		return result
+	}
+	return nil
+}
+
+// 获取全部的ingress信息
+func (ing *IngressMap) ListIngress(ns string) ([]*v1beta1.Ingress,error) {
+	fmt.Println("开始调用")
+	if va,ok := ing.data.Load(ns);ok {
+		fmt.Println("是否ok=",ok)
+		return va.([]*v1beta1.Ingress),nil
+	}
+	fmt.Printf("ns=%s 没有结果",ns)
+	return nil,fmt.Errorf("%s - ingress is not found",ns)
 }
 
 

@@ -32,3 +32,7 @@ func (*ServiceConfig) SvService() *servers.SVservice {
 func (*ServiceConfig) Helper() *servers.Helper {
 	return servers.NewHelper()
 }
+
+func (*ServiceConfig) IngressService() *servers.IngressService {
+	return servers.NewIngressService()
+}
