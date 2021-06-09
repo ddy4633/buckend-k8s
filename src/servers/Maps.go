@@ -346,11 +346,15 @@ type IngressMap struct {
 func (ing *IngressMap) Add(ingress *v1beta1.Ingress) {
 	if va,ok := ing.data.Load(ingress.Namespace);ok {
 		list := append(va.([]*v1beta1.Ingress),ingress)
-		fmt.Println("存储了",list)
+		fmt.Println("存在，存储了",list)
 		ing.data.Store(ingress.Namespace,list)
 	}else {
-		fmt.Println("存储了",ingress)
+		fmt.Println("不存在，存储了",ingress)
 		ing.data.Store(ingress.Namespace,[]*v1beta1.Ingress{ingress})
+		re := ing.ListTest(ingress.Namespace)
+		re1,err := ing.ListIngress(ingress.Namespace)
+		fmt.Println("ListIngress Func ->",re1,"error ->",err)
+		fmt.Printf("ListTest Func -> %v",re)
 	}
 }
 
@@ -396,6 +400,7 @@ func (ing *IngressMap) GetIngress(ns,name string) *v1beta1.Ingress {
 func (ing *IngressMap) ListTest(ns string) ([]*models.Ingresses) {
 	fmt.Println(ns)
 	if va,ok := ing.data.Load(ns);ok {
+		fmt.Println(ns,va.([]*v1beta1.Ingress))
 		obj := va.([]*v1beta1.Ingress)
 		sort.Sort(v1beta1Ingress(obj))
 		result := make([]*models.Ingresses,len(obj))
@@ -417,7 +422,6 @@ func (ing *IngressMap) ListTest(ns string) ([]*models.Ingresses) {
 func (ing *IngressMap) ListIngress(ns string) ([]*v1beta1.Ingress,error) {
 	fmt.Println("开始调用")
 	if va,ok := ing.data.Load(ns);ok {
-		fmt.Println("是否ok=",ok)
 		return va.([]*v1beta1.Ingress),nil
 	}
 	fmt.Printf("ns=%s 没有结果",ns)
