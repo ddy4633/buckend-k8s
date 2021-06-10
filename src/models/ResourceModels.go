@@ -21,18 +21,22 @@ type NsModel struct {
 
 // Pod的模板
 type Pod struct {
-	Name         string
-	NameSpace    string
-	Images       string
-	NodeName     string   // 所在机器
-	IP           []string // 当前POD IP
-	Phase        string   // Pod当前所处阶段
-	IsRead       bool     // 是否是就绪状态
-	Message      string
-	CreateTime   string
-	RestartCount int32  // 重启次数
-	Age          string // 创建时间
+	Name           string
+	NameSpace      string
+	Images         string
+	NodeName       string   // 所在机器
+	IP             []string // 当前POD IP
+	Phase          string   // Pod当前所处阶段
+	IsRead         bool     // 是否是就绪状态
+	Message        string
+	CreateTime     string
+	Labels         map[string]string //标签
+	RestartCount   int32             // 重启次数
+	Age            string            // 创建时间
 	ContainersName []*Containers
+	Annotation     map[string]string // 注解
+	Tolerations    interface{}       // 容忍
+	Secret         string            // 使用的权限
 }
 
 // Service模板
@@ -55,9 +59,9 @@ type Containers struct {
 
 // ingress对象
 type Ingresses struct {
-	Name string
-	NameSpace string
+	Name       string
+	NameSpace  string
 	CreateTime string
-	Labels interface{}
-	Status string
+	Labels     interface{}
+	Status     string
 }

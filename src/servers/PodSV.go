@@ -20,11 +20,11 @@ func NewPodService() *PodService {
 }
 
 // 分页输出POD列表
-func(p *PodService) PagePods(ns string,page,size int) *Paging {
+func (p *PodService) PagePods(ns string, page, size int) *Paging {
 	pods := p.ListPod(ns)
-	readycount,allcount,ipods := p.GetPodtotle(pods)
-	return p.Helper.PageResource(page,size,ipods).
-		SetEXT(gin.H{"ReadyNum":readycount,"AllNum":allcount})
+	readycount, allcount, ipods := p.GetPodtotle(pods)
+	return p.Helper.PageResource(page, size, ipods).
+		SetEXT(gin.H{"ReadyNum": readycount, "AllNum": allcount})
 }
 
 // 获取所有的Pod信息
@@ -47,9 +47,13 @@ func (p *PodService) ListPod(ns string) (res []*models.Pod) {
 			Message:    p.Events.GetMessages(item.Namespace, "Pod", item.Name),
 			CreateTime: item.CreationTimestamp.Time.Format("2006-01-02 15:04:05"),
 			// 当第一次创建的时候返回的对象的len为零？
-			RestartCount: p.getRestartCount(item),
-			Age:          p.Conmmon.GetAge(item.CreationTimestamp.Time),
-			ContainersName: p.GetContainers(item.Namespace,item.Name),
+			Labels:         item.Labels,
+			RestartCount:   p.getRestartCount(item),
+			Age:            p.Conmmon.GetAge(item.CreationTimestamp.Time),
+			ContainersName: p.GetContainers(item.Namespace, item.Name),
+			Annotation:     item.Annotations,
+			Tolerations:    item.Spec.Tolerations,
+			Secret:         item.Spec.ServiceAccountName,
 		}
 		//fmt.Println(pod.Name, pod.IsRead)
 		res = append(res, pod)
@@ -71,12 +75,12 @@ func (p *PodService) GetPodtotle(res []*models.Pod) (readyCount, allCount int, i
 }
 
 // 获取Container容器的列表
-func (p * PodService) GetContainers(ns,podname string) []*models.Containers {
-	result := make([]*models.Containers,0)
-	pods,err := p.PodMap.GetPod(ns,podname)
-	if err == nil{
-		for _,c := range pods.Spec.Containers{
-			result = append(result,&models.Containers{
+func (p *PodService) GetContainers(ns, podname string) []*models.Containers {
+	result := make([]*models.Containers, 0)
+	pods, err := p.PodMap.GetPod(ns, podname)
+	if err == nil {
+		for _, c := range pods.Spec.Containers {
+			result = append(result, &models.Containers{
 				Name: c.Name,
 			})
 		}
