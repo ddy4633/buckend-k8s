@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
 	"k8s-web/src/servers"
@@ -21,9 +22,11 @@ func (*IngressCtl) Name() string {
 
 func (ing *IngressCtl) ListAll(c *gin.Context) goft.Json {
 	ns := c.DefaultQuery("ns","default")
+	ob := ing.IngressMap.ListTest(ns)
+	fmt.Println(ob)
 	return gin.H{
 		"code": 20000,
-		"data": ing.IngressMap.ListTest(ns),
+		"data": ob,
 	}
 }
 

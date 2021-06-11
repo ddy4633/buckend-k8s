@@ -31,6 +31,8 @@ type Pod struct {
 	Message        string
 	CreateTime     string
 	Labels         map[string]string //标签
+	ContainerPort  interface{}	// 内部使用端口
+	Mount 		 	interface{}
 	RestartCount   int32             // 重启次数
 	Age            string            // 创建时间
 	ContainersName []*Containers

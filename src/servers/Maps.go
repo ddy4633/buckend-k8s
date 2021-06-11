@@ -346,26 +346,23 @@ type IngressMap struct {
 func (ing *IngressMap) Add(ingress *v1beta1.Ingress) {
 	if va,ok := ing.data.Load(ingress.Namespace);ok {
 		list := append(va.([]*v1beta1.Ingress),ingress)
-		fmt.Println("存在，存储了",list)
 		ing.data.Store(ingress.Namespace,list)
 	}else {
-		fmt.Println("不存在，存储了",ingress)
 		ing.data.Store(ingress.Namespace,[]*v1beta1.Ingress{ingress})
-		re := ing.ListTest(ingress.Namespace)
-		re1,err := ing.ListIngress(ingress.Namespace)
-		fmt.Println("ListIngress Func ->",re1,"error ->",err)
-		fmt.Printf("ListTest Func -> %v",re)
 	}
 }
 
 // 数据更新
 func (ing *IngressMap) Update(ingress *v1beta1.Ingress) error {
+	fmt.Println("被调用进行更新")
 	if va,ok := ing.data.Load(ingress.Namespace);ok {
 		for i,ingress_obj := range va.([]*v1beta1.Ingress) {
 			if ingress_obj.Name == ingress.Name {
 				va.([]*v1beta1.Ingress)[i] = ingress
 			}
 		}
+		v,err := ing.ListIngress(ingress.Namespace)
+		fmt.Println(v,err)
 		return nil
 	}
 	return fmt.Errorf("%s - ingress-%s is not found",ingress.Namespace,ingress.Name)
@@ -373,6 +370,7 @@ func (ing *IngressMap) Update(ingress *v1beta1.Ingress) error {
 
 // 删除数据
 func (ing *IngressMap) Delete(ingress *v1beta1.Ingress){
+	fmt.Println("被调用进行删除")
 	if va,ok := ing.data.Load(ingress.Namespace);ok {
 		for i,ingress_obj := range va.([]*v1beta1.Ingress) {
 			if ingress_obj.Name == ingress.Name {
@@ -396,9 +394,16 @@ func (ing *IngressMap) GetIngress(ns,name string) *v1beta1.Ingress {
 	return nil
 }
 
+func (ing  *IngressMap) All() {
+	fmt.Println("all被调用")
+	va,ok := ing.data.Load("default")
+	fmt.Println(va,ok)
+}
+
 //　测试方法
 func (ing *IngressMap) ListTest(ns string) ([]*models.Ingresses) {
-	fmt.Println(ns)
+	fmt.Println("被调用了",ns)
+	ing.All()
 	if va,ok := ing.data.Load(ns);ok {
 		fmt.Println(ns,va.([]*v1beta1.Ingress))
 		obj := va.([]*v1beta1.Ingress)
@@ -414,8 +419,10 @@ func (ing *IngressMap) ListTest(ns string) ([]*models.Ingresses) {
 			}
 		}
 		return result
+	}else{
+		fmt.Println("返回空")
+		return nil
 	}
-	return nil
 }
 
 // 获取全部的ingress信息

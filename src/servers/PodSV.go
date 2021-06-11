@@ -54,6 +54,8 @@ func (p *PodService) ListPod(ns string) (res []*models.Pod) {
 			Annotation:     item.Annotations,
 			Tolerations:    item.Spec.Tolerations,
 			Secret:         item.Spec.ServiceAccountName,
+			ContainerPort:  item.Spec.Containers[0].Ports,
+			Mount:          item.Spec.Containers[0].VolumeMounts,
 		}
 		//fmt.Println(pod.Name, pod.IsRead)
 		res = append(res, pod)
