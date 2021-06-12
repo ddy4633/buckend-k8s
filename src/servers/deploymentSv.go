@@ -2,15 +2,17 @@ package servers
 
 import (
 	"k8s-web/src/models"
-
-	v1 "k8s.io/api/apps/v1"
+	"sort"
 
 	"github.com/shenyisyn/goft-gin/goft"
+	v1 "k8s.io/api/apps/v1"
+	"k8s.io/api/networking/v1beta1"
 )
 
 type DeploymentService struct {
 	DepMap  *DeploymentMap `inject:"-"`
 	Conmmon *CommonService `inject:"-"`
+	IngressMaps *IngressMap
 }
 
 func NewDeploymentService() *DeploymentService {
@@ -38,6 +40,29 @@ func (this *DeploymentService) ListAll(ns string) (res []*models.Deployment) {
 		res = append(res, rep)
 	}
 	return res
+}
+
+// 获取所有ingress信息
+func (ing *IngressService) GetALLIngresss(ns string) []*models.Ingresses {
+	if va, ok := ing.IngressMaps.data.Load(ns); ok {
+		obj := va.([]*v1beta1.Ingress)
+		sort.Sort(v1beta1Ingress(obj))
+		result := make([]*models.Ingresses, len(obj))
+		for i, item := range obj {
+			result[i] = &models.Ingresses{
+				Name:       item.Name,
+				NameSpace:  item.Namespace,
+				CreateTime: item.CreationTimestamp.String(),
+				Labels:     item.Labels,
+				Status:     item.Status.String(),
+				Rules:      item.Spec.Rules,
+				Address:    item.Status.LoadBalancer.Ingress,
+			}
+		}
+		return result
+	} else {
+		return make([]*models.Ingresses ,0)
+	}
 }
 
 //// 获取指定的NS下的Deployment信息

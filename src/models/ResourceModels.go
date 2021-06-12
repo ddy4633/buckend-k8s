@@ -31,10 +31,10 @@ type Pod struct {
 	Message        string
 	CreateTime     string
 	Labels         map[string]string //标签
-	ContainerPort  interface{}	// 内部使用端口
-	Mount 		 	interface{}
-	RestartCount   int32             // 重启次数
-	Age            string            // 创建时间
+	ContainerPort  interface{}       // 内部使用端口
+	Mount          interface{}
+	RestartCount   int32  // 重启次数
+	Age            string // 创建时间
 	ContainersName []*Containers
 	Annotation     map[string]string // 注解
 	Tolerations    interface{}       // 容忍
@@ -59,11 +59,3 @@ type Containers struct {
 	Name string
 }
 
-// ingress对象
-type Ingresses struct {
-	Name       string
-	NameSpace  string
-	CreateTime string
-	Labels     interface{}
-	Status     string
-}

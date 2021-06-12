@@ -8,7 +8,6 @@ import (
 )
 
 type NsCtl struct {
-	NsMap     *servers.NamespaceMap
 	NsService *servers.NamespaceMap `inject:"-"`
 }
 

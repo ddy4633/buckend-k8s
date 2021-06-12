@@ -1,13 +1,13 @@
 package servers
 
 import (
-	"fmt"
 	"k8s-web/src/models"
+	"k8s.io/api/networking/v1beta1"
 	"sort"
 )
 
 type IngressService struct {
-	IngressMap *IngressMap
+	IngressMaps *IngressMap `inject:"-"`
 }
 
 func NewIngressService() *IngressService {
@@ -16,23 +16,24 @@ func NewIngressService() *IngressService {
 
 // 获取所有ingress信息
 func (ing *IngressService) GetALLIngress(ns string) []*models.Ingresses {
-	if va, err := ing.IngressMap.ListIngress(ns); err == nil {
-		// 进行排序处理
-		sort.Sort(v1beta1Ingress(va))
-		// 初始化自定义模型
-		result := make([]*models.Ingresses, len(va))
-		for i, ingress := range va {
+	if va, ok := ing.IngressMaps.data.Load(ns); ok {
+		obj := va.([]*v1beta1.Ingress)
+		sort.Sort(v1beta1Ingress(obj))
+		result := make([]*models.Ingresses, len(obj))
+		for i, item := range obj {
 			result[i] = &models.Ingresses{
-				Name:       ingress.Name,
-				NameSpace:  ingress.Namespace,
-				CreateTime: ingress.CreationTimestamp.String(),
-				Labels:     ingress.Labels,
-				Status:     ingress.Status.String(),
+				Name:       item.Name,
+				NameSpace:  item.Namespace,
+				CreateTime: item.CreationTimestamp.String(),
+				Labels:     item.Labels,
+				Status:     item.Status.String(),
+				Rules:      item.Spec.Rules,
+				Address:    item.Status.LoadBalancer.Ingress,
 			}
 		}
 		return result
 	} else {
-		fmt.Println(err)
-		return make([]*models.Ingresses, 0)
+		return make([]*models.Ingresses ,0)
 	}
 }
+

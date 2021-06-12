@@ -168,18 +168,18 @@ func (s *ServiceMap) List(ns string) ([]*corev1.Service, error) {
 type CorePods []*corev1.Pod
 
 // 求本身的长度
-func (c CorePods) Len() int{
+func (c CorePods) Len() int {
 	return len(c)
 }
 
 // 利用时间来做(正排序)
-func (c CorePods) Less(i,j int) bool {
+func (c CorePods) Less(i, j int) bool {
 	return c[i].CreationTimestamp.Time.Before(c[j].CreationTimestamp.Time)
 }
 
 // 数据交换实现
-func (c CorePods) Swap(i,j int){
-	c[i],c[j]=c[j],c[i]
+func (c CorePods) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
 }
 
 // 对Pod的集合进行定义
@@ -267,7 +267,7 @@ func (p *PodMap) LabelsList(ns string, labels []map[string]string) ([]*corev1.Po
 
 // 返回排序后的pod列表
 func (p *PodMap) ListByNS(ns string) []*corev1.Pod {
-	if list,ok := p.data.Load(ns);ok{
+	if list, ok := p.data.Load(ns); ok {
 		ret := list.([]*corev1.Pod)
 		// 进行排序
 		sort.Sort(CorePods(ret))
@@ -344,38 +344,34 @@ type IngressMap struct {
 
 // 存储数据
 func (ing *IngressMap) Add(ingress *v1beta1.Ingress) {
-	if va,ok := ing.data.Load(ingress.Namespace);ok {
-		list := append(va.([]*v1beta1.Ingress),ingress)
-		ing.data.Store(ingress.Namespace,list)
-	}else {
-		ing.data.Store(ingress.Namespace,[]*v1beta1.Ingress{ingress})
+	if va, ok := ing.data.Load(ingress.Namespace); ok {
+		list := append(va.([]*v1beta1.Ingress), ingress)
+		ing.data.Store(ingress.Namespace, list)
+	} else {
+		ing.data.Store(ingress.Namespace, []*v1beta1.Ingress{ingress})
 	}
 }
 
 // 数据更新
 func (ing *IngressMap) Update(ingress *v1beta1.Ingress) error {
-	fmt.Println("被调用进行更新")
-	if va,ok := ing.data.Load(ingress.Namespace);ok {
-		for i,ingress_obj := range va.([]*v1beta1.Ingress) {
+	if va, ok := ing.data.Load(ingress.Namespace); ok {
+		for i, ingress_obj := range va.([]*v1beta1.Ingress) {
 			if ingress_obj.Name == ingress.Name {
 				va.([]*v1beta1.Ingress)[i] = ingress
 			}
 		}
-		v,err := ing.ListIngress(ingress.Namespace)
-		fmt.Println(v,err)
 		return nil
 	}
-	return fmt.Errorf("%s - ingress-%s is not found",ingress.Namespace,ingress.Name)
+	return fmt.Errorf("%s - ingress-%s is not found", ingress.Namespace, ingress.Name)
 }
 
 // 删除数据
-func (ing *IngressMap) Delete(ingress *v1beta1.Ingress){
-	fmt.Println("被调用进行删除")
-	if va,ok := ing.data.Load(ingress.Namespace);ok {
-		for i,ingress_obj := range va.([]*v1beta1.Ingress) {
+func (ing *IngressMap) Delete(ingress *v1beta1.Ingress) {
+	if va, ok := ing.data.Load(ingress.Namespace); ok {
+		for i, ingress_obj := range va.([]*v1beta1.Ingress) {
 			if ingress_obj.Name == ingress.Name {
-				list := append(va.([]*v1beta1.Ingress)[:i],va.([]*v1beta1.Ingress)[i+1:]...)
-				ing.data.Store(ingress_obj.Namespace,list)
+				list := append(va.([]*v1beta1.Ingress)[:i], va.([]*v1beta1.Ingress)[i+1:]...)
+				ing.data.Store(ingress_obj.Namespace, list)
 				break
 			}
 		}
@@ -383,9 +379,9 @@ func (ing *IngressMap) Delete(ingress *v1beta1.Ingress){
 }
 
 // 获取单个ingress信息
-func (ing *IngressMap) GetIngress(ns,name string) *v1beta1.Ingress {
-	if va,ok := ing.data.Load(ns);ok {
-		for _,ingress := range va.([]*v1beta1.Ingress) {
+func (ing *IngressMap) GetIngress(ns, name string) *v1beta1.Ingress {
+	if va, ok := ing.data.Load(ns); ok {
+		for _, ingress := range va.([]*v1beta1.Ingress) {
 			if ingress.Name == name {
 				return ingress
 			}
@@ -394,47 +390,14 @@ func (ing *IngressMap) GetIngress(ns,name string) *v1beta1.Ingress {
 	return nil
 }
 
-func (ing  *IngressMap) All() {
-	fmt.Println("all被调用")
-	va,ok := ing.data.Load("default")
-	fmt.Println(va,ok)
-}
-
-//　测试方法
-func (ing *IngressMap) ListTest(ns string) ([]*models.Ingresses) {
-	fmt.Println("被调用了",ns)
-	ing.All()
-	if va,ok := ing.data.Load(ns);ok {
-		fmt.Println(ns,va.([]*v1beta1.Ingress))
-		obj := va.([]*v1beta1.Ingress)
-		sort.Sort(v1beta1Ingress(obj))
-		result := make([]*models.Ingresses,len(obj))
-		for i,item := range obj {
-			result[i] = &models.Ingresses{
-				Name:       item.Name,
-				NameSpace:  item.Namespace,
-				CreateTime: item.CreationTimestamp.String(),
-				Labels:     item.Labels,
-				Status:     item.Status.String(),
-			}
-		}
-		return result
-	}else{
-		fmt.Println("返回空")
-		return nil
-	}
-}
 
 // 获取全部的ingress信息
-func (ing *IngressMap) ListIngress(ns string) ([]*v1beta1.Ingress,error) {
-	fmt.Println("开始调用")
-	if va,ok := ing.data.Load(ns);ok {
-		return va.([]*v1beta1.Ingress),nil
+func (ing *IngressMap) ListIngress(ns string) ([]*v1beta1.Ingress, error) {
+	if va, ok := ing.data.Load(ns); ok {
+		return va.([]*v1beta1.Ingress), nil
 	}
-	fmt.Printf("ns=%s 没有结果",ns)
-	return nil,fmt.Errorf("%s - ingress is not found",ns)
+	return nil, fmt.Errorf("%s - ingress is not found", ns)
 }
-
 
 // ingress对象排序的实现
 type v1beta1Ingress []*v1beta1.Ingress
@@ -443,11 +406,11 @@ func (ing v1beta1Ingress) Len() int {
 	return len(ing)
 }
 
-func (ing v1beta1Ingress) Less(i,j int) bool {
+func (ing v1beta1Ingress) Less(i, j int) bool {
 	// 根据时间间隔（倒排序）
 	return ing[i].CreationTimestamp.Time.After(ing[j].CreationTimestamp.Time)
 }
 
-func (ing v1beta1Ingress) Swap(i,j int) {
-	ing[i],ing[j] = ing[j],ing[i]
+func (ing v1beta1Ingress) Swap(i, j int) {
+	ing[i], ing[j] = ing[j], ing[i]
 }
