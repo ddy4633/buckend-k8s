@@ -164,24 +164,24 @@ type IngressHandle struct {
 
 func (ing *IngressHandle) OnAdd(obj interface{}){
 	ing.IngressMap.Add(obj.(*v1beta1.Ingress))
-	//msg := returnMsg("ingress",
-	//	obj.(*v1beta1.Ingress).Namespace,
-	//	ing.IngressService.GetALLIngress(obj.(*v1beta1.Ingress).Namespace))
-	//wscore.ClientMap.Sendall(msg)
+	msg := returnMsg("ingress",
+		obj.(*v1beta1.Ingress).Namespace,
+		ing.IngressService.GetALLIngress(obj.(*v1beta1.Ingress).Namespace))
+	wscore.ClientMap.Sendall(msg)
 }
 
 func (ing *IngressHandle) OnUpdate(lodObj ,newObj interface{}){
 	ing.IngressMap.Update(newObj.(*v1beta1.Ingress))
-	//msg := returnMsg("ingress",
-	//	newObj.(*v1beta1.Ingress).Namespace,
-	//	ing.IngressService.GetALLIngress(newObj.(*v1beta1.Ingress).Namespace))
-	//wscore.ClientMap.Sendall(msg)
+	msg := returnMsg("ingress",
+		newObj.(*v1beta1.Ingress).Namespace,
+		ing.IngressService.GetALLIngress(newObj.(*v1beta1.Ingress).Namespace))
+	wscore.ClientMap.Sendall(msg)
 }
 
 func (ing *IngressHandle) OnDelete(obj interface{}) {
 	ing.IngressMap.Delete(obj.(*v1beta1.Ingress))
-	//msg := returnMsg("ingress",
-	//	obj.(*v1beta1.Ingress).Namespace,
-	//	ing.IngressService.GetALLIngress(obj.(*v1beta1.Ingress).Namespace))
-	//wscore.ClientMap.Sendall(msg)
+	msg := returnMsg("ingress",
+		obj.(*v1beta1.Ingress).Namespace,
+		ing.IngressService.GetALLIngress(obj.(*v1beta1.Ingress).Namespace))
+	wscore.ClientMap.Sendall(msg)
 }

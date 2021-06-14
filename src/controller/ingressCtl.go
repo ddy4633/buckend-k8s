@@ -31,24 +31,23 @@ func (ing *IngressCtl) ListAll(c *gin.Context) goft.Json {
 
 // 获取ingress的Annotation信息
 func (ing *IngressCtl) GetAnnotations(c *gin.Context) goft.Json {
-	ns := c.DefaultQuery("ns","default")
-	fmt.Println(ns)
+	//ns := c.DefaultQuery("ns","default")
 	return gin.H{
 		"code": 20000,
 		"data": models.IngressAnnotationsitem,
 	}
 }
 
-// 前端Post回来的Ingress信息
-func (ing *IngressCtl) PostIngress(c *gin.Context) goft.Json {
+// 创建前端Post回来的Ingress
+func (ing *IngressCtl) CreateIngress(c *gin.Context) goft.Json {
 	ingressModles := &models.IngressCreate{}
 	if err :=c.BindJSON(ingressModles);err != nil {
 		fmt.Println(err)
+		goft.Error(err)
 	}
-	fmt.Printf("%v",ingressModles)
 	return gin.H{
 		"code": 20000,
-		"data": ingressModles,
+		"data": ing.IngressService.CreateIngress(ingressModles),
 	}
 }
 
@@ -56,5 +55,5 @@ func (ing *IngressCtl) PostIngress(c *gin.Context) goft.Json {
 func (ing *IngressCtl) Build(goft *goft.Goft) {
 	goft.Handle("GET","/ingress",ing.ListAll)
 	goft.Handle("GET","/ingress/annotations",ing.GetAnnotations)
-	goft.Handle("POST","/ingress",ing.PostIngress)
+	goft.Handle("POST","/ingress",ing.CreateIngress)
 }

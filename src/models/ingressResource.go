@@ -13,8 +13,8 @@ type Ingresses struct {
 
 // ingress特殊参数
 type Annotation struct {
-	Name    string
-	Remarks string
+	Name    string `json:"name"`
+	Remarks string `json:"remarks"`
 }
 
 // create-Ingress 提交回来的Path信息
@@ -30,11 +30,23 @@ type IngressRules struct {
 	Paths []*IngressPath `json:"paths"`
 }
 
+// annotations内部对象数据
+type Rules struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// 前端接收的annotation对象
+type GetAnntation struct {
+	Rules []*Rules `json:"rules"`
+}
+
 // 最终合并的对象
 type IngressCreate struct {
-	Name      string
-	NameSpace string
-	Rules     []*IngressRules
+	Name            string
+	NameSpace       string
+	AnnotationsData []*GetAnntation `json:"annotationsdata"`
+	Rules           []*IngressRules
 }
 
 // 关于InGress Annotations的配置信息
@@ -53,3 +65,4 @@ var IngressAnnotationsitem = []Annotation{
 	Annotation{"auth-type", "HTTP身份验证类型(basic|digest)"},
 	Annotation{"auth-tls-secret", "包含完整证书Secret的名称"},
 }
+
