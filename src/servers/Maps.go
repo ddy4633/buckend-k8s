@@ -414,3 +414,61 @@ func (ing v1beta1Ingress) Less(i, j int) bool {
 func (ing v1beta1Ingress) Swap(i, j int) {
 	ing[i], ing[j] = ing[j], ing[i]
 }
+
+// secret底层存储
+type SecretMap struct {
+	data sync.Map
+}
+
+func (se *SecretMap) Add(secret *corev1.Secret) {
+	if va,ok := se.data.Load(secret.Namespace);ok{
+		list := append(va.([]*corev1.Secret),secret)
+		se.data.Store(secret.Namespace,list)
+	}else {
+		se.data.Store(secret.Namespace,[]*corev1.Secret{secret})
+	}
+}
+
+func (se *SecretMap) Delete(secret *corev1.Secret) {
+	if va,ok := se.data.Load(secret.Namespace);ok{
+		for k,value := range va.([]*corev1.Secret) {
+			if value.Name == secret.Name {
+				list := append(va.([]*corev1.Secret)[:k],va.([]*corev1.Secret)[:k+1]...)
+				se.data.Store(secret.Namespace,list)
+				break
+			}
+		}
+	}
+}
+
+func (se *SecretMap) Update(secret *corev1.Secret) error {
+	if va,ok := se.data.Load(secret.Namespace);ok{
+		for k,value := range va.([]*corev1.Secret) {
+			if value.Name == secret.Name {
+				va.([]*corev1.Secret)[k]=secret
+			}
+		}
+		return nil
+	}else {
+		return fmt.Errorf("not found %s/%s",secret.Namespace,secret.Name)
+	}
+}
+
+func (se *SecretMap) Get(ns string,name string) *corev1.Secret{
+	if va,ok := se.data.Load(ns);!ok {
+		for _,v := range va.([]*corev1.Secret){
+			if v.Name == name {
+				return v
+			}
+		}
+	}
+	return nil
+}
+
+func (se *SecretMap) GetALL(ns string) ([]*corev1.Secret,error) {
+	if va,ok := se.data.Load(ns);ok {
+		return va.([]*corev1.Secret),nil
+	}else {
+		return nil,fmt.Errorf("not found secret in %s",ns)
+	}
+}

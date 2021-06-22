@@ -26,6 +26,7 @@ func main() {
 			controller.NewServiceCtl(),
 			controller.NewPodLogCtl(),
 			controller.NewIngressCtl(),
+			controller.NewSecretCtl(),
 		).Attach(
 	//middleware.NewCrosMiddleware()
 	)

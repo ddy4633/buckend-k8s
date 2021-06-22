@@ -12,8 +12,8 @@ import (
 )
 
 type IngressService struct {
-	IngressMaps *IngressMap `inject:"-"`
-	K8sClient *kubernetes.Clientset `inject:"-"`
+	IngressMaps *IngressMap           `inject:"-"`
+	K8sClient   *kubernetes.Clientset `inject:"-"`
 }
 
 func NewIngressService() *IngressService {
@@ -28,13 +28,14 @@ func (ing *IngressService) GetALLIngress(ns string) []*models.Ingresses {
 		result := make([]*models.Ingresses, len(obj))
 		for i, item := range obj {
 			result[i] = &models.Ingresses{
-				Name:       item.Name,
-				NameSpace:  item.Namespace,
-				CreateTime: item.CreationTimestamp.String(),
-				Labels:     item.Labels,
-				Status:     item.Status.String(),
-				Rules:      item.Spec.Rules,
-				Address:    item.Status.LoadBalancer.Ingress,
+				Name:        item.Name,
+				NameSpace:   item.Namespace,
+				CreateTime:  item.CreationTimestamp.String(),
+				Labels:      item.Labels,
+				Status:      item.Status.String(),
+				Rules:       item.Spec.Rules,
+				Address:     item.Status.LoadBalancer.Ingress,
+				Annotations: item.Annotations,
 			}
 		}
 		return result
@@ -95,7 +96,12 @@ func (ing *IngressService) CreateIngress(ingress *models.IngressCreate) error {
 		},
 	}
 	// 调用K8s-api创建Ingress对象
-	_,err := ing.K8sClient.NetworkingV1beta1().Ingresses(ingress.NameSpace).
-		Create(context.TODO(),Newingress,metav1.CreateOptions{})
+	_, err := ing.K8sClient.NetworkingV1beta1().Ingresses(ingress.NameSpace).
+		Create(context.TODO(), Newingress, metav1.CreateOptions{})
 	return err
+}
+
+// 删除操作
+func (ing *IngressService) DeleteIngress(ns, name string) error {
+	return ing.K8sClient.NetworkingV1beta1().Ingresses(ns).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }

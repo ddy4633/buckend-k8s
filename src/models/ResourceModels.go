@@ -59,3 +59,21 @@ type Containers struct {
 	Name string
 }
 
+// Secret模板
+type Secrets struct {
+	Name       string
+	NameSpace  string
+	Type       string
+	CreateTime string
+}
+
+var Secret_Type_Select = map[string]string{
+	"Opaque":"自定义类型",
+	"kubernetes.io/service-account-token":"服务账号令牌",
+	"kubernetes.io/dockercfg":"docker配置",
+	"kubernetes.io/dockerconfigjson":"docker配置(JSON)",
+	"kubernetes.io/basic-auth":"Basic认证凭据",
+	"kubernetes.io/ssh-auth":" SSH凭据",
+	"kubernetes.io/tls":"TLS凭据",
+	"bootstrap.kubernetes.io/token":"启动引导令牌数据",
+}

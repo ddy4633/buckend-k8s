@@ -45,9 +45,22 @@ func (ing *IngressCtl) CreateIngress(c *gin.Context) goft.Json {
 		fmt.Println(err)
 		goft.Error(err)
 	}
+	data := ing.IngressService.CreateIngress(ingressModles)
 	return gin.H{
 		"code": 20000,
-		"data": ing.IngressService.CreateIngress(ingressModles),
+		"data": data,
+	}
+}
+
+// 删除ingrss资源
+func (ing *IngressCtl) DeleteIngress(c *gin.Context) goft.Json {
+	ns := c.DefaultQuery("ns","default")
+	name := c.DefaultQuery("name","nil")
+	err := ing.IngressService.DeleteIngress(ns,name)
+	fmt.Println(err,ns,name)
+	return gin.H{
+		"code": 20000,
+		"data": "ok",
 	}
 }
 
@@ -56,4 +69,5 @@ func (ing *IngressCtl) Build(goft *goft.Goft) {
 	goft.Handle("GET","/ingress",ing.ListAll)
 	goft.Handle("GET","/ingress/annotations",ing.GetAnnotations)
 	goft.Handle("POST","/ingress",ing.CreateIngress)
+	goft.Handle("DELETE","/ingress",ing.DeleteIngress)
 }

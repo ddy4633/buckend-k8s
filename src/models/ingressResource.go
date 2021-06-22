@@ -9,6 +9,7 @@ type Ingresses struct {
 	Status     string
 	Rules      interface{}
 	Address    interface{}
+	Annotations map[string]string
 }
 
 // ingress特殊参数

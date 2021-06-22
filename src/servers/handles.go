@@ -19,30 +19,27 @@ type DeployHandler struct {
 
 func (this *DeployHandler) OnAdd(obj interface{}) {
 	this.DepMap.Add(obj.(*v1.Deployment))
-	msg := returnMsg("deployment",
+	returnMsg("deployment",
 		obj.(*v1.Deployment).Namespace,
 		this.DeployMent.ListAll(obj.(*v1.Deployment).Namespace))
-	wscore.ClientMap.Sendall(msg)
 }
 
 func (this *DeployHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
 	if err := this.DepMap.Update(newObj.(*v1.Deployment)); err != nil {
 		log.Println(err)
 	} else {
-		msg := returnMsg("deployment",
+		returnMsg("deployment",
 			newObj.(*v1.Deployment).Namespace,
 			this.DeployMent.ListAll(newObj.(*v1.Deployment).Namespace))
-		wscore.ClientMap.Sendall(msg)
 	}
 }
 
 func (this *DeployHandler) OnDelete(obj interface{}) {
 	if objs, ok := obj.(*v1.Deployment); ok {
 		this.DepMap.Delete(objs)
-		msg := returnMsg("deployment",
+		returnMsg("deployment",
 			obj.(*v1.Deployment).Namespace,
 			this.DeployMent.ListAll(obj.(*v1.Deployment).Namespace))
-		wscore.ClientMap.Sendall(msg)
 	}
 }
 
@@ -55,30 +52,27 @@ type PodHandler struct {
 func (p *PodHandler) OnAdd(obj interface{}) {
 	p.PodMaps.Add(obj.(*corev1.Pod))
 	// 多层的封装
-	msg := returnMsg("pod",
+	returnMsg("pod",
 		obj.(*corev1.Pod).Namespace,
-		p.PodServices.PagePods(obj.(*corev1.Pod).Namespace,1,8))
-	wscore.ClientMap.Sendall(msg)
+		p.PodServices.PagePods(obj.(*corev1.Pod).Namespace, 1, 8))
 }
 
 func (p *PodHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
 	if err := p.PodMaps.Update(newObj.(*corev1.Pod)); err != nil {
 		log.Println(err)
 	} else {
-		msg := returnMsg("pod",
+		returnMsg("pod",
 			newObj.(*corev1.Pod).Namespace,
-			p.PodServices.PagePods(newObj.(*corev1.Pod).Namespace,1,8))
-		wscore.ClientMap.Sendall(msg)
+			p.PodServices.PagePods(newObj.(*corev1.Pod).Namespace, 1, 8))
 	}
 }
 
 func (p *PodHandler) OnDelete(obj interface{}) {
 	if objs, ok := obj.(*corev1.Pod); ok {
 		p.PodMaps.Delete(objs)
-		msg := returnMsg("pod",
+		returnMsg("pod",
 			obj.(*corev1.Pod).Namespace,
-			p.PodServices.PagePods(obj.(*corev1.Pod).Namespace,1,8))
-		wscore.ClientMap.Sendall(msg)
+			p.PodServices.PagePods(obj.(*corev1.Pod).Namespace, 1, 8))
 	}
 }
 
@@ -131,12 +125,13 @@ func (e *EventHandler) OnDelete(obj interface{}) {
 }
 
 // 公共返回的消息格式方法
-func returnMsg(kind, ns string, data interface{}) *models.ReturnMsg {
-	return &models.ReturnMsg{
+func returnMsg(kind, ns string, data interface{}) {
+	msg := &models.ReturnMsg{
 		Type: kind,
 		Ns:   ns,
 		Data: data,
 	}
+	wscore.ClientMap.Sendall(msg)
 }
 
 // Service相关的Handler
@@ -158,30 +153,54 @@ func (s *ServiceHandler) OnDelete(obj interface{}) {
 
 // Ingress回调的对象
 type IngressHandle struct {
-	IngressMap *IngressMap `inject:"-"`
+	IngressMap     *IngressMap     `inject:"-"`
 	IngressService *IngressService `inject:"-"`
 }
 
-func (ing *IngressHandle) OnAdd(obj interface{}){
+func (ing *IngressHandle) OnAdd(obj interface{}) {
 	ing.IngressMap.Add(obj.(*v1beta1.Ingress))
-	msg := returnMsg("ingress",
+	returnMsg("ingress",
 		obj.(*v1beta1.Ingress).Namespace,
 		ing.IngressService.GetALLIngress(obj.(*v1beta1.Ingress).Namespace))
-	wscore.ClientMap.Sendall(msg)
 }
 
-func (ing *IngressHandle) OnUpdate(lodObj ,newObj interface{}){
+func (ing *IngressHandle) OnUpdate(lodObj, newObj interface{}) {
 	ing.IngressMap.Update(newObj.(*v1beta1.Ingress))
-	msg := returnMsg("ingress",
+	returnMsg("ingress",
 		newObj.(*v1beta1.Ingress).Namespace,
 		ing.IngressService.GetALLIngress(newObj.(*v1beta1.Ingress).Namespace))
-	wscore.ClientMap.Sendall(msg)
 }
 
 func (ing *IngressHandle) OnDelete(obj interface{}) {
 	ing.IngressMap.Delete(obj.(*v1beta1.Ingress))
-	msg := returnMsg("ingress",
+	returnMsg("ingress",
 		obj.(*v1beta1.Ingress).Namespace,
 		ing.IngressService.GetALLIngress(obj.(*v1beta1.Ingress).Namespace))
-	wscore.ClientMap.Sendall(msg)
+}
+
+// Secret资源对象回调
+type SecretHandle struct {
+	SecretMaps    *SecretMap     `inject:"-"`
+	SecretService *SecretService `inject:"-"`
+}
+
+func (se *SecretHandle) OnAdd(obj interface{}) {
+	se.SecretMaps.Add(obj.(*corev1.Secret))
+	returnMsg("secret",
+		obj.(*corev1.Secret).Namespace,
+		se.SecretService.Getall(obj.(*corev1.Secret).Namespace))
+}
+
+func (se *SecretHandle) OnUpdate(lodObj, newObj interface{}) {
+	se.SecretMaps.Update(newObj.(*corev1.Secret))
+	returnMsg("secret",
+		newObj.(*corev1.Secret).Namespace,
+		se.SecretService.Getall(newObj.(*corev1.Secret).Namespace))
+}
+
+func (se *SecretHandle) OnDelete(obj interface{}) {
+	se.SecretMaps.Delete(obj.(*corev1.Secret))
+	returnMsg("secret",
+		obj.(*corev1.Secret).Namespace,
+		se.SecretService.Getall(obj.(*corev1.Secret).Namespace))
 }

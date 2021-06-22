@@ -21,6 +21,7 @@ type K8sConfig struct {
 	EventHandlers     *servers.EventHandler     `inject:"-"`
 	ServiceHandlers   *servers.ServiceHandler   `inject:"-"`
 	IngressHandle     *servers.IngressHandle    `inject:"-"`
+	SecretHandle      *servers.SecretHandle     `inject:"-"`
 }
 
 func NewK8sConfig() *K8sConfig {
@@ -28,10 +29,10 @@ func NewK8sConfig() *K8sConfig {
 }
 
 // 初始化给webshell使用的restconfig原生
-func (*K8sConfig) K8sRestConfig() *rest.Config{
-	config, err := clientcmd.BuildConfigFromFlags("","/root/.kube/config" )
+func (*K8sConfig) K8sRestConfig() *rest.Config {
+	config, err := clientcmd.BuildConfigFromFlags("", "/root/.kube/config")
 	//config.Insecure=true
-	if err!=nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	return config
@@ -48,7 +49,7 @@ func (k8s *K8sConfig) InitClient() *kubernetes.Clientset {
 
 // 初始化informer
 func (this *K8sConfig) InitInformer() informers.SharedInformerFactory {
-	fact := informers.NewSharedInformerFactory(this.InitClient(), 3*time.Second)
+	fact := informers.NewSharedInformerFactory(this.InitClient(), 30*time.Second)
 
 	// 初始化deployment的informer
 	deployInformer := fact.Apps().V1().Deployments()
@@ -73,6 +74,10 @@ func (this *K8sConfig) InitInformer() informers.SharedInformerFactory {
 	// 初始化Igress信息
 	IngressInformer := fact.Networking().V1beta1().Ingresses()
 	IngressInformer.Informer().AddEventHandler(this.IngressHandle)
+
+	// 初始化Secret对象
+	secretInformer := fact.Core().V1().Secrets()
+	secretInformer.Informer().AddEventHandler(this.SecretHandle)
 
 	fact.Start(wait.NeverStop)
 	return fact

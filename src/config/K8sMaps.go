@@ -43,3 +43,8 @@ func (this *Maps) InitServiceMap() *servers.ServiceMap {
 func (this *Maps) InitIngressMap() *servers.IngressMap {
 	return &servers.IngressMap{}
 }
+
+// 初始化Secret
+func (this *Maps) InitSecretMap() *servers.SecretMap {
+	return &servers.SecretMap{}
+}

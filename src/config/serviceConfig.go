@@ -36,3 +36,7 @@ func (*ServiceConfig) Helper() *servers.Helper {
 func (*ServiceConfig) IngressService() *servers.IngressService {
 	return servers.NewIngressService()
 }
+
+func (*ServiceConfig) SecretService() *servers.SecretService {
+	return servers.NewSecretService()
+}
