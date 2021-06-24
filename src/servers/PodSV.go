@@ -1,18 +1,22 @@
 package servers
 
 import (
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"k8s-web/src/models"
 	coreV1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"log"
 )
 
 type PodService struct {
-	PodMap  *PodMap        `inject:"-"`
-	Conmmon *CommonService `inject:"-"`
-	Events  *EventMap      `inject:"-"`
-	Helper  *Helper        `inject:"-"`
+	PodMap    *PodMap               `inject:"-"`
+	Conmmon   *CommonService        `inject:"-"`
+	Events    *EventMap             `inject:"-"`
+	Helper    *Helper               `inject:"-"`
+	K8sClient *kubernetes.Clientset `inject:"-"`
 }
 
 func NewPodService() *PodService {
@@ -61,6 +65,11 @@ func (p *PodService) ListPod(ns string) (res []*models.Pod) {
 		res = append(res, pod)
 	}
 	return res
+}
+
+// 删除指定的pod
+func (p *PodService) DeletePod(ns,name string) error {
+	return p.K8sClient.CoreV1().Pods(ns).Delete(context.Background(),name,metav1.DeleteOptions{})
 }
 
 // 获取pod的就绪总数和总数量

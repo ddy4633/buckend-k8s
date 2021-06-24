@@ -49,9 +49,15 @@ func (ing *IngressService) CreateIngress(ingress *models.IngressCreate) error {
 	// 组装Ingress的annotation
 	annotations := make(map[string]string, 3)
 	for _, va := range ingress.AnnotationsData[0].Rules {
+		// 替换className的key
+		if va.Key == models.IngressAnnotationsHead{
+			annotations["kubernetes.io/ingress.class"] = va.Value
+			delete(annotations,models.IngressAnnotationsHead)
+			continue
+		}
 		annotations[va.Key] = va.Value
 	}
-	className := annotations["nginx.ingress.kubernetes.io/ingress.class"]
+	className := annotations["kubernetes.io/ingress.class"]
 	// 组装rule规则
 	ingressRule := []v1beta1.IngressRule{}
 	for _, ob := range ingress.Rules {

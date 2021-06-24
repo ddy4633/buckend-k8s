@@ -1,11 +1,9 @@
 package controller
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
 	"k8s-web/src/servers"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -55,17 +53,16 @@ func (p *PodCtl) Containers(c *gin.Context) goft.Json {
 
 // 删除指定的pod
 func (p *PodCtl) DeletePod(c *gin.Context) goft.Json {
-	ns := c.Query("ns")
-	pod := c.Query("pod")
-	err := p.ClientSet.CoreV1().Pods(ns).Delete(context.TODO(),pod,metav1.DeleteOptions{})
+	ns := c.DefaultQuery("ns","default")
+	pod := c.DefaultQuery("name"," ")
 	return gin.H{
 		"code": 20000,
-		"data": err.Error(),
+		"data": p.PodServices.DeletePod(ns,pod),
 	}
 }
 
 func (p *PodCtl) Build(goft *goft.Goft) {
 	goft.Handle("GET", "/pods", p.GetALL)
 	goft.Handle("GET", "/pods/containers", p.Containers)
-	goft.Handle("DELETE","/pods/delete",p.DeletePod)
+	goft.Handle("DELETE","/pods",p.DeletePod)
 }

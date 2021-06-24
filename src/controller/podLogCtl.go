@@ -2,12 +2,12 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
 	"io"
 	coreV1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -21,7 +21,7 @@ func NewPodLogCtl() *PodLogCtl {
 	return &PodLogCtl{}
 }
 
-func (plog *PodLogCtl) GetLogs(c *gin.Context) (v goft.Void){
+func (plog *PodLogCtl) GetLogs(c *gin.Context) (v goft.Void) {
 	// 分别获取namespace，pod，containter
 	ns := c.DefaultQuery("ns","default")
 	podname := c.DefaultQuery("pname","")
@@ -29,15 +29,19 @@ func (plog *PodLogCtl) GetLogs(c *gin.Context) (v goft.Void){
 	tail,_ := strconv.ParseInt(c.DefaultQuery("tail","500"),10,64)
 	// 日志的请求参数(指定的container+实时读取+默认500行)
 	opt := &coreV1.PodLogOptions{Container: ctname,TailLines: &tail,Follow: true}
-	fmt.Println(ns,podname,ctname)
 	// 获取容器的日志信息
 	reqpodlogs := plog.Client.CoreV1().Pods(ns).GetLogs(podname,opt)
+	log.Println(ns,podname,ctname,opt)
 	// 设置单个超时的时间为10分钟
 	cc,_ := context.WithTimeout(c,5*time.Minute)
 	// 流式读取日志信息
 	ioreader,err := reqpodlogs.Stream(cc)
+	// 这里如果pod资源不存在会抛出指针错误待修复
+	if err !=nil {
+		log.Printf("%s/%s -> %s Read logs Error: %s",ns,podname,ctname,err)
+		return
+	}
 	defer ioreader.Close()
-	fmt.Println(err)
 	for {
 		buf := make([]byte,1024)
 		n,err := ioreader.Read(buf)
