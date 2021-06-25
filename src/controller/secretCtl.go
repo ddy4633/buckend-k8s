@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shenyisyn/goft-gin/goft"
+	"k8s-web/src/models"
 	"k8s-web/src/servers"
 )
 
@@ -31,6 +33,17 @@ func (se *SecretCtl) DeleteSecret(c *gin.Context) goft.Json  {
 
 // 创建secret对象
 func (se *SecretCtl) CreateSecret(c *gin.Context) goft.Json {
+	secretData := &models.CreateSecretModle{}
+	err:= c.ShouldBindJSON(secretData)
+	if err !=nil {
+		fmt.Println()
+		return  gin.H{
+			"code": "20000",
+			"data": err,
+		}
+	}
+	// 提交对象
+
 	return gin.H{
 		"code": 20000,
 		"data": 0,
