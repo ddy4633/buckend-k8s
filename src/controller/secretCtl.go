@@ -43,10 +43,10 @@ func (se *SecretCtl) CreateSecret(c *gin.Context) goft.Json {
 		}
 	}
 	// 提交对象
-
+	se.SecretService.CreateSercet(secretData)
 	return gin.H{
 		"code": 20000,
-		"data": 0,
+		"data": err,
 	}
 }
 
