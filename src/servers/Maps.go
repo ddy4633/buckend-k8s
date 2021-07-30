@@ -472,3 +472,34 @@ func (se *SecretMap) GetALL(ns string) ([]*corev1.Secret,error) {
 		return nil,fmt.Errorf("not found secret in %s",ns)
 	}
 }
+
+// 存储Node节点信息
+type NodeMap struct {
+	data sync.Map
+}
+
+func (nd *NodeMap) Add(node *corev1.Node) {
+	nd.data.Store(node.Name,node)
+}
+
+func (nd *NodeMap) Delete(node *corev1.Node) {
+	nd.data.Delete(node.Name)
+}
+
+func (nd *NodeMap) Update(node *corev1.Node) {
+	nd.data.Store(node.Name,node)
+}
+
+func (nd *NodeMap) Get(name string) *corev1.Node {
+	va,_ := nd.data.Load(name)
+	return va.(*corev1.Node)
+}
+
+func (nd *NodeMap) GetAll() []*corev1.Node {
+	result := []*corev1.Node{}
+	nd.data.Range(func(key, value interface{}) bool {
+		result = append(result,value.(*corev1.Node))
+		return true
+	})
+	return result
+}

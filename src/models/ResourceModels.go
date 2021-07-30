@@ -85,3 +85,17 @@ var Secret_Type_Select = map[string]string{
 	"kubernetes.io/tls":                   "TLS凭据",
 	"bootstrap.kubernetes.io/token":       "启动引导令牌数据",
 }
+
+// Node节点模板
+type Nodes struct {
+	Name       string
+	Labels     map[string]string
+	Annotation map[string]string
+	Taints     interface{}
+	Caps 	[]NodeCaps
+}
+
+// Node节点数据指标
+type NodeCaps struct {
+
+}
