@@ -41,6 +41,30 @@ type Pod struct {
 	Secret         string            // 使用的权限
 }
 
+// EndPonits模板
+type EndPoints struct {
+	Name      string
+	NameSpace string
+	Lables    map[string]string
+	CreatTime string
+	Status    EndpointsStatus
+	Port      EndPonitsPort
+}
+
+type EndpointsStatus struct {
+	Addresss          []string // 对外提供的唯一监听点
+	NotReadyAddresses []string // 未就绪的监听点
+	TargetRefName     string
+	NodeName          []string
+	HostName          []string
+}
+
+type EndPonitsPort struct {
+	Name     string // 名称
+	Port     string // 端口
+	Protocol interface{} // 通讯方式TCP/UDP
+}
+
 // Service模板
 type Services struct {
 	Name          string
@@ -92,10 +116,9 @@ type Nodes struct {
 	Labels     map[string]string
 	Annotation map[string]string
 	Taints     interface{}
-	Caps 	[]NodeCaps
+	Caps       []NodeCaps
 }
 
 // Node节点数据指标
 type NodeCaps struct {
-
 }

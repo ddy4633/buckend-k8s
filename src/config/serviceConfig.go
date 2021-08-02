@@ -40,3 +40,7 @@ func (*ServiceConfig) IngressService() *servers.IngressService {
 func (*ServiceConfig) SecretService() *servers.SecretService {
 	return servers.NewSecretService()
 }
+
+func (*ServiceConfig) EndPointsService() *servers.EndPointSV {
+	return servers.NewEndPointSV()
+}

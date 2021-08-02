@@ -22,6 +22,7 @@ type K8sConfig struct {
 	ServiceHandlers   *servers.ServiceHandler   `inject:"-"`
 	IngressHandle     *servers.IngressHandle    `inject:"-"`
 	SecretHandle      *servers.SecretHandle     `inject:"-"`
+	EndPointsHandle   *servers.EndPointsHandle  `inject:"-"`
 }
 
 func NewK8sConfig() *K8sConfig {
@@ -78,6 +79,10 @@ func (this *K8sConfig) InitInformer() informers.SharedInformerFactory {
 	// 初始化Secret对象
 	secretInformer := fact.Core().V1().Secrets()
 	secretInformer.Informer().AddEventHandler(this.SecretHandle)
+
+	// 初始化EndPoint对象
+	EndPointsInformer := fact.Core().V1().Endpoints()
+	EndPointsInformer.Informer().AddEventHandler(this.EndPointsHandle)
 
 	fact.Start(wait.NeverStop)
 	return fact

@@ -473,6 +473,59 @@ func (se *SecretMap) GetALL(ns string) ([]*corev1.Secret,error) {
 	}
 }
 
+// 嗯，这次是endpoints信息
+type EndPointsMap struct {
+	data sync.Map
+}
+
+func (ep *EndPointsMap) Add(eps *corev1.Endpoints) {
+	if va,ok := ep.data.Load(eps.Namespace);ok {
+		list := append(va.([]*corev1.Endpoints),eps)
+		ep.data.Store(eps.Namespace,list)
+	}else{
+		ep.data.Store(eps.Namespace,eps)
+	}
+}
+func (ep *EndPointsMap) Delete(eps *corev1.Endpoints) {
+	if va,ok:= ep.data.Load(eps.Namespace);ok {
+		for i,item := range va.([]*corev1.Endpoints) {
+			if item.Name == eps.Name {
+				newep := append(va.([]*corev1.Endpoints)[:i],va.([]*corev1.Endpoints)[i-1:]...)
+				ep.data.Store(eps.Namespace,newep)
+				break
+			}
+		}
+	}
+}
+func (ep *EndPointsMap) update(eps *corev1.Endpoints) {
+	if va,ok := ep.data.Load(eps.Namespace);ok {
+		for i,item := range va.([]*corev1.Endpoints) {
+			if item.Name == eps.Name {
+				va.([]*corev1.Endpoints)[i]=eps
+			}
+		}
+	}
+}
+
+func (ep *EndPointsMap) Getns(ns string) ([]*corev1.Endpoints,error) {
+	if va,ok := ep.data.Load(ns);ok{
+		fmt.Printf("%v",va.([]*corev1.Endpoints))
+		return va.([]*corev1.Endpoints),nil
+	}else {
+		return nil,fmt.Errorf("not found EndPonits in %s",ns)
+	}
+}
+
+func (ep *EndPointsMap) Get(ns,name string) (*corev1.Endpoints,error) {
+	va,_ := ep.data.Load(ns)
+	for i,item := range va.([]*corev1.Endpoints) {
+		if item.Name == name {
+			return va.([]*corev1.Endpoints)[i],nil
+		}
+	}
+	return nil,fmt.Errorf("not found EndPonits/%s in %s",name,ns)
+}
+
 // 存储Node节点信息
 type NodeMap struct {
 	data sync.Map

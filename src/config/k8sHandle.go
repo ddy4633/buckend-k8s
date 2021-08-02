@@ -37,3 +37,7 @@ func (this *K8sHandle) IngressHandler() *servers.IngressHandle {
 func (this *K8sHandle) SecretHandle() *servers.SecretHandle {
 	return &servers.SecretHandle{}
 }
+
+func (*K8sHandle) EndPointsHandle() *servers.EndPointsHandle {
+	return &servers.EndPointsHandle{}
+}

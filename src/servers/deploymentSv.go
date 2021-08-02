@@ -12,7 +12,6 @@ import (
 type DeploymentService struct {
 	DepMap  *DeploymentMap `inject:"-"`
 	Conmmon *CommonService `inject:"-"`
-	IngressMaps *IngressMap
 }
 
 func NewDeploymentService() *DeploymentService {

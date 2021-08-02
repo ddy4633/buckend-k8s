@@ -204,3 +204,28 @@ func (se *SecretHandle) OnDelete(obj interface{}) {
 		obj.(*corev1.Secret).Namespace,
 		se.SecretService.Getall(obj.(*corev1.Secret).Namespace))
 }
+
+// EndPoints对象回调处理
+type EndPointsHandle struct {
+	EndPointMaps     *EndPointsMap `inject:"-"`
+	EndPointsService *EndPointSV   `inject:"-"`
+}
+
+func (ep *EndPointsHandle) OnAdd(obj interface{}) {
+	ep.EndPointMaps.Add(obj.(*corev1.Endpoints))
+	fmt.Println(obj.(*corev1.Endpoints).Name,"is ok onADD")
+	//returnMsg("endpoins",
+	//	obj.(*corev1.Endpoints).Namespace,
+	//	ep.EndPointsService.Getall(obj.(*corev1.Endpoints).Namespace))
+}
+func (ep *EndPointsHandle) OnUpdate(lodObj, newObj interface{}) {
+	ep.EndPointMaps.update(newObj.(*corev1.Endpoints))
+	returnMsg("endpoins",
+		newObj.(*corev1.Endpoints).Namespace,
+		ep.EndPointsService.Getall(newObj.(*corev1.Endpoints).Namespace))
+}
+func (ep *EndPointsHandle) OnDelete(obj interface{}) {
+	returnMsg("endpoins",
+		obj.(*corev1.Endpoints).Namespace,
+		ep.EndPointsService.Getall(obj.(*corev1.Endpoints).Namespace))
+}

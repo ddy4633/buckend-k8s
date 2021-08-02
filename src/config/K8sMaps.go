@@ -48,3 +48,8 @@ func (this *Maps) InitIngressMap() *servers.IngressMap {
 func (this *Maps) InitSecretMap() *servers.SecretMap {
 	return &servers.SecretMap{}
 }
+
+//初始化Endpoints
+func (*Maps) InitEndPointsMap() *servers.EndPointsMap {
+	return &servers.EndPointsMap{}
+}
