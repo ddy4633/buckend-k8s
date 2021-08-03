@@ -213,10 +213,9 @@ type EndPointsHandle struct {
 
 func (ep *EndPointsHandle) OnAdd(obj interface{}) {
 	ep.EndPointMaps.Add(obj.(*corev1.Endpoints))
-	fmt.Println(obj.(*corev1.Endpoints).Name,"is ok onADD")
-	//returnMsg("endpoins",
-	//	obj.(*corev1.Endpoints).Namespace,
-	//	ep.EndPointsService.Getall(obj.(*corev1.Endpoints).Namespace))
+	returnMsg("endpoins",
+		obj.(*corev1.Endpoints).Namespace,
+		ep.EndPointsService.Getall(obj.(*corev1.Endpoints).Namespace))
 }
 func (ep *EndPointsHandle) OnUpdate(lodObj, newObj interface{}) {
 	ep.EndPointMaps.update(newObj.(*corev1.Endpoints))

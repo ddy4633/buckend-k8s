@@ -47,21 +47,18 @@ type EndPoints struct {
 	NameSpace string
 	Lables    map[string]string
 	CreatTime string
-	Status    EndpointsStatus
-	Port      EndPonitsPort
+	Status    []EndpointsStatus
+	Port      []EndPonitsPort
 }
 
 type EndpointsStatus struct {
 	Addresss          []string // 对外提供的唯一监听点
-	NotReadyAddresses []string // 未就绪的监听点
-	TargetRefName     string
-	NodeName          []string
-	HostName          []string
+	NotReadyAddresses string // 未就绪的监听点
 }
 
 type EndPonitsPort struct {
 	Name     string // 名称
-	Port     string // 端口
+	Port     int32 // 端口
 	Protocol interface{} // 通讯方式TCP/UDP
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 type EndPointSV struct {
-	endPointsMap *EndPointsMap `inject:"-"`
+	EndPointsMap *EndPointsMap `inject:"-"`
 }
 
 func NewEndPointSV() *EndPointSV {
@@ -15,10 +15,12 @@ func NewEndPointSV() *EndPointSV {
 }
 
 func (ep *EndPointSV) Getall(ns string) (res []*models.EndPoints) {
-	eplist, err := ep.endPointsMap.Getns(ns)
-	log.Println(err)
+	eplist, err := ep.EndPointsMap.Getns(ns)
+	if err != nil {
+		log.Println(err)
+	}
 	for _, endpoint := range eplist {
-		status,port := ep.getAdress(endpoint)
+		status, port := ep.getAdress(endpoint)
 		result := &models.EndPoints{
 			Name:      endpoint.Name,
 			NameSpace: endpoint.Namespace,
@@ -33,28 +35,25 @@ func (ep *EndPointSV) Getall(ns string) (res []*models.EndPoints) {
 }
 
 // 获取单个endpoint下的adress信息
-func (ep *EndPointSV) getAdress(endpoints *corev1.Endpoints) (models.EndpointsStatus,models.EndPonitsPort) {
-	var adress, noreadyADR,node,hostname []string
+func (ep *EndPointSV) getAdress(endpoints *corev1.Endpoints) ( res []models.EndpointsStatus, resport []models.EndPonitsPort) {
 	for _, sub := range endpoints.Subsets {
+		status := models.EndpointsStatus{}
+		epport := models.EndPonitsPort{}
+		var address []string
 		for _, oneadress := range sub.Addresses {
-			adress = append(adress, oneadress.IP)
-			node = append(node,*oneadress.NodeName)
-			hostname = append(hostname,oneadress.Hostname)
+			address = append(address,oneadress.IP)
 		}
+		status.Addresss = address
 		for _, notIP := range sub.NotReadyAddresses {
-			noreadyADR = append(noreadyADR, notIP.IP)
+			status.NotReadyAddresses = notIP.IP
 		}
+		for _, p := range sub.Ports {
+			epport.Name = p.Name
+			epport.Port = p.Port
+			epport.Protocol = p.Protocol
+			resport = append(resport,epport)
+		}
+		res = append(res,status)
 	}
-	return models.EndpointsStatus{
-		Addresss:          adress,
-		NotReadyAddresses: noreadyADR,
-		TargetRefName: endpoints.Subsets[0].Addresses[0].TargetRef.Name,
-		NodeName: node,
-		HostName: hostname,
-	},models.EndPonitsPort{
-			Name: endpoints.Subsets[0].Ports[0].Name,
-			Port: string(endpoints.Subsets[0].Ports[0].Port),
-			Protocol: endpoints.Subsets[0].Ports[0].Protocol,
-		}
+	return res,resport
 }
-

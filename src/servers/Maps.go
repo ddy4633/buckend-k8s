@@ -479,11 +479,11 @@ type EndPointsMap struct {
 }
 
 func (ep *EndPointsMap) Add(eps *corev1.Endpoints) {
-	if va,ok := ep.data.Load(eps.Namespace);ok {
+	if va,ok := ep.data.Load(eps.Namespace);ok{
 		list := append(va.([]*corev1.Endpoints),eps)
 		ep.data.Store(eps.Namespace,list)
-	}else{
-		ep.data.Store(eps.Namespace,eps)
+	}else {
+		ep.data.Store(eps.Namespace,[]*corev1.Endpoints{eps})
 	}
 }
 func (ep *EndPointsMap) Delete(eps *corev1.Endpoints) {
@@ -508,8 +508,7 @@ func (ep *EndPointsMap) update(eps *corev1.Endpoints) {
 }
 
 func (ep *EndPointsMap) Getns(ns string) ([]*corev1.Endpoints,error) {
-	if va,ok := ep.data.Load(ns);ok{
-		fmt.Printf("%v",va.([]*corev1.Endpoints))
+	if va, ok := ep.data.Load(ns); ok {
 		return va.([]*corev1.Endpoints),nil
 	}else {
 		return nil,fmt.Errorf("not found EndPonits in %s",ns)
